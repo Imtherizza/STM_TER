@@ -13,7 +13,7 @@ Un affichage de données est préprogrammé et inclut :
 # Activer le SPI
 Lorsque le microcontroleur a fini de s'initialiser, appuyer sur le BP2 (proche du RESET jaune) pour activer les transmissions \
 Ceci doit être fait de préference avant le démarrage du programme sur Raspberry Pi \
-**Un programme de test est présent dans le dossier [SPI_Python_Test](https://github.com/Imtherizza/STM_TER/tree/main/SPI_Python_test,"SPI_Python_Test")** 
+**Un programme de test est présent dans le dossier [SPI_Python_Test](https://github.com/Imtherizza/STM_TER/tree/main/SPI_Python_test)** 
 
 # A faire :
 - Conduite directe par STM avec toutes les instructions passant par SPI (facultatif)
