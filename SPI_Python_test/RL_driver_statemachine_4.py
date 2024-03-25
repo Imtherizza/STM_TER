@@ -14,7 +14,6 @@ steering_coeff = 1
 speed_coeff = 1
 
 # SPI init 
-
 bus = 0
 spi_len = 6 # Taille bits SPI
 spi = spidev.SpiDev()
@@ -31,14 +30,14 @@ def convert(float_num): # Conversion au centieme de precision
     decimale = int((float_num - int(float_num)) * 100)
     return entier, decimale
 
+def recompose(): # Renvoie la fourche (mm/s) et la distance (cm) DANS CET ORDRE
+    fo = RxBuffer[4]*100 + RxBuffer[5]
+    return fo, TxBuffer[0] # ou 1 ou 2 ca marche aussi
+
 def SPI_init():
     spi.open(bus, 1)
     spi.max_speed_hz = 1000000 # 1MHz
     spi.mode = 0
-
-def recompose(): # Renvoie la fourche (mm/s) et la distance (cm) DANS CET ORDRE
-    fo = RxBuffer[4]*100 + RxBuffer[5]
-    return fo, TxBuffer[0] # ou 1 ou 2 ca marche aussi
 
 # Obsolete (marche meme pas de toute facon)
 def SPI_thread():
@@ -81,6 +80,7 @@ class Driver():
         self.pwm_prop = HardwarePWM(pwm_channel=0, hz=50)
         self.pwm_dir = HardwarePWM(pwm_channel=1, hz=50)
         
+
         self.pwm_prop.start(self.pwm_stop_prop)
          
         self.vitesse_consigne = 0
@@ -281,7 +281,7 @@ try :
                     RxBuffer = spi.xfer(TxBuffer)
                     valeur_fourche, valeur_arriere = recompose()
                     if SPI_print == 1: # DEBUG
-                        print(TxBuffer)
+                        print(RxBuffer)
                         print(valeur_fourche)
                         print(valeur_arriere)
                       
