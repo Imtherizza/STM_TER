@@ -290,12 +290,17 @@ int main(void)
 	  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 	  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)ADRES_SRF10<<1, donnees_Tx_i2c, 2, 1000);
 
+	  // 1,2,3 : distance
 	  SPI_TxBuffer[0] = (char)distance_US;
 	  SPI_TxBuffer[1] = (char)distance_US;
 	  SPI_TxBuffer[2] = (char)distance_US;
-	  SPI_TxBuffer[3] = (char)distance_US;
-	  SPI_TxBuffer[4] = (char)distance_US;
-	  SPI_TxBuffer[5] = (char)distance_US;
+	  // 255 placeholder
+	  SPI_TxBuffer[3] = 0xFF;
+	  // Fourche ENVOI EN DECIMETRE
+	  // Valeurs : 4 entier
+	  // 		   5 decimal
+	  SPI_TxBuffer[4] = (char)(vitesse_mesuree_mm_s/100);
+	  SPI_TxBuffer[5] = (char)(vitesse_mesuree_mm_s - (vitesse_mesuree_mm_s/100)*100);
 
 	  // DELAI
 	  HAL_Delay(100);
