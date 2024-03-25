@@ -17,3 +17,4 @@ Ceci doit être fait de préference avant le démarrage du programme sur Raspber
 
 # A faire :
 - Conduite directe par STM avec toutes les instructions passant par SPI (facultatif)
+- Fourche optique?
