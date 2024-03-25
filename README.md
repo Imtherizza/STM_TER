@@ -1,6 +1,8 @@
 # STM_TER
 Repository for STML432KC component
 
+Biblios "CoVAPSy" ont été "empruntés" de monsieur Juton :)
+
 # Etat du programme
 
 Le programme emet et recoit des trames d'un maximum de six caractères (6) sur 8bits en SPI \
