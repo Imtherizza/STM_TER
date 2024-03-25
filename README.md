@@ -9,6 +9,7 @@ Un affichage de données est préprogrammé et inclut :
 - Un indicateur de vitesse
 - Les données brutes du roulis
 - les valeurs captées par le capteur arrière
+- Trames de reception SPI (pour ceux qui savent pas utiliser de debugger)
 
 # Activer le SPI
 Lorsque le microcontroleur a fini de s'initialiser, appuyer sur le BP2 (proche du RESET jaune) pour activer les transmissions \
