@@ -6,6 +6,7 @@ Biblios "CoVAPSy" ont été "empruntés" de monsieur Juton :)
 # Etat du programme
 
 Le programme emet et recoit des trames d'un maximum de six caractères (6) sur 8bits en SPI \
+Le SPI Fonctionne en **Interruption CPU** et j'avoue que pour du SPI vaut mieux passer en DMA mais flemme 
 L'envoi par défaut programmé est l'envoi de la valeur en cm du télémètre sur les six caractères d'envoi\
 Un affichage de données est préprogrammé et inclut : 
 - Un indicateur de vitesse
