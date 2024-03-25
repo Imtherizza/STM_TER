@@ -214,17 +214,25 @@ int main(void)
 	  //détection front descendant sur bp1
 	  if((bp1 == BP_ENFONCE) && (bp1_old == BP_RELACHE))
 	  {
-		  buzzer_start_frequency_Hz(1760);
-		  HAL_Delay(500);
-		  buzzer_stop();
+		  //buzzer_start_frequency_Hz(1760);
+		  //HAL_Delay(500);
+		  //buzzer_stop();
 	  }
 
 	  //détection front descendant sur bp2
 	  if((bp2 == BP_ENFONCE) && (bp2_old == BP_RELACHE))
 	  {
-		  //changement d'état de la Led4
+		  buzzer_start_frequency_Hz(440);
+		  HAL_Delay(100);
+		  buzzer_start_frequency_Hz(840);
+		  HAL_Delay(100);
+		  buzzer_start_frequency_Hz(440);
+		  HAL_Delay(100);
+		  buzzer_start_frequency_Hz(840);
+		  HAL_Delay(100);
+		  buzzer_stop();
 		  HAL_SPI_TransmitReceive_IT(&hspi3, SPI_TxBuffer, SPI_RxBuffer, 6);
-		  //HAL_SPI_Receive_IT(&hspi3, SPI_RxBuffer, 6);
+		  //changement d'état de la Led4
 		  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
 		  SPIActive = 1;
 	  }
