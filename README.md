@@ -1,5 +1,5 @@
 # STM_TER
-Repository for STML432KC component \
+Repository for STML432KC component
 
 # Etat du programme
 
