@@ -11,22 +11,6 @@ import spidev
 #import smbus
 #import keyboard
 
-"""
-bus = smbus.SMBus(1) 
-def lecture_us_cm():
-    try: 
-        bus.write_byte_data(0x70, 0, 0x51)
-        time.sleep(0.05)
-        range1 = bus.read_byte_data(0x70, 2)
-        range2 = bus.read_byte_data(0x70, 3)
-        distance_cm = (range1 << 8) + range2
-        if distance_cm < 1000:
-            return distance_cm
-        else:
-            return 0
-    except:
-        return 0 """
-
 steering_coeff = 1
 acceleration_coeff = 1
 
@@ -47,7 +31,7 @@ def convert(float_num): # Conversion au centieme de precision
     decimale = int((float_num - int(float_num)) * 100)
     return entier, decimale
 
-def recompose(): # Renvoie la fourche (mm/s) et la distance (cm) DANS CET ORDRE
+def recompose(): # Renvoie la fourche (mm/s) et la distance (cm) DANS CET ORDRE, MARCHE PAS :(
     fo = RxBuffer[4]*100 + RxBuffer[5]
     return fo, TxBuffer[0] # ou 1 ou 2 ca marche aussi
 
@@ -276,7 +260,8 @@ def conduite_autonome() :
 
             # Envoi et interpretation SPI
             RxBuffer = spi.xfer(TxBuffer)
-            valeur_fourche, valeur_arriere = recompose()
+            valeur_fourche = RxBuffer[4]*100 + RxBuffer[5]
+            valeur_arriere = RxBuffer[2]
             if SPI_print == 1: # DEBUG
                 print(RxBuffer)
                 print(valeur_fourche)
