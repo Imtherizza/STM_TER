@@ -320,6 +320,7 @@ int main(void)
 	  // J'AI PEUR :))))))))))))))
 	  __HAL_RCC_SPI3_FORCE_RESET();
 	  __HAL_RCC_SPI3_RELEASE_RESET();
+	  MX_SPI3_Init();
 
     /* USER CODE END WHILE */
 
