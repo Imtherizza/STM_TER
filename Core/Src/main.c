@@ -285,9 +285,9 @@ int main(void)
 	  SPI_TxBuffer[0] = (char)distance_US;
 	  SPI_TxBuffer[1] = (char)distance_US;
 	  SPI_TxBuffer[2] = (char)distance_US;
-	  SPI_TxBuffer[3] = (char)distance_US;
-	  SPI_TxBuffer[4] = (char)distance_US;
-	  SPI_TxBuffer[5] = (char)distance_US;
+	  SPI_TxBuffer[3] = (char)0xFF;
+	  SPI_TxBuffer[4] = (char)vitesse_mesuree_mm_s/100;
+	  SPI_TxBuffer[5] = (char)vitesse_mesuree_mm_s-(vitesse_mesuree_mm_s/100)*100;
 
 	  // DELAI
 	  HAL_Delay(100);
