@@ -11,7 +11,6 @@
   *
   * This software is licensed under terms that can be found in the LICENSE file
   * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
   *
   ******************************************************************************
   */
@@ -63,16 +62,15 @@
 float vitesse_mesuree_m_s = 0;
 uint32_t vitesse_mesuree_mm_s = 0;
 uint32_t lectures_ADC[3];
-uint8_t SPI_TxBuffer[6] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; 	// buffer pour la transmission SPI
-uint8_t SPI_RxBuffer[6] ={}; 				// Buffer pour la réception SPI
-int16_t roll, distance_US;
+uint8_t SPI_TxBuffer[10] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; 	// buffer pour la transmission SPI
+uint8_t SPI_RxBuffer[10] = {}; 				// Buffer pour la réception SPI
+int16_t roll, distance_US, vbat;
 uint8_t temp;
 uint16_t telemetre_gauche, telemetre_droit;
 uint32_t drapeau = 0;
 static u8g_t u8g;
 
 // Custom flags
-int errorFlag, SPIFlag = 0;
 int SPIActive = 0;
 
 /* USER CODE END PV */
@@ -202,41 +200,37 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  // Code par defaut : ---------------------------
-
-	  //démarrage de la conversion ADC des 3 canaux
+	  // démarrage de la conversion ADC des 3 canaux
 	  HAL_ADC_Start_DMA(&hadc1, lectures_ADC, 3);
 
-	  //lecture des boutons
+	  // lecture des boutons
 	  bp1 = HAL_GPIO_ReadPin(BP1_GPIO_Port, BP1_Pin);
 	  bp2 = HAL_GPIO_ReadPin(BP2_GPIO_Port, BP2_Pin);
 
-	  //détection front descendant sur bp1
+	  // détection front descendant sur bp1
 	  if((bp1 == BP_ENFONCE) && (bp1_old == BP_RELACHE))
 	  {
-		  //buzzer_start_frequency_Hz(1760);
-		  //HAL_Delay(500);
-		  //buzzer_stop();
+		  buzzer_start_frequency_Hz(1760);
+		  HAL_Delay(500);
+		  buzzer_stop();
 	  }
-
-	  //détection front descendant sur bp2
+	  // détection front descendant sur bp2
 	  if((bp2 == BP_ENFONCE) && (bp2_old == BP_RELACHE))
 	  {
-		  buzzer_start_frequency_Hz(440);
+		  buzzer_start_frequency_Hz(520);
 		  HAL_Delay(100);
-		  buzzer_start_frequency_Hz(840);
+		  buzzer_start_frequency_Hz(980);
 		  HAL_Delay(100);
-		  buzzer_start_frequency_Hz(440);
+		  buzzer_start_frequency_Hz(520);
 		  HAL_Delay(100);
-		  buzzer_start_frequency_Hz(840);
+		  buzzer_start_frequency_Hz(980);
 		  HAL_Delay(100);
 		  buzzer_stop();
-		  HAL_SPI_TransmitReceive_IT(&hspi3, SPI_TxBuffer, SPI_RxBuffer, 6);
-		  //changement d'état de la Led4
-		  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
+
 		  SPIActive = 1;
 	  }
-	  //lecture ultrason
+
+	  // lecture ultrason
 		donnees_Tx_i2c[0]=0x02;
 		while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
 		HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)ADRES_SRF10<<1, donnees_Tx_i2c, 1, 1000);
@@ -246,6 +240,7 @@ int main(void)
 
 	  roll = bno055_lecture_16bits(EULER_ROLL_16bits);
 	  temp = bno055_lecture_8bits(TEMPERATURE_8bits);
+	  vbat = lectures_ADC[2];
 
 	  // si il n'y a pas eu de lecture de la vitesse récemment
 	  if(drapeau==0)
@@ -255,12 +250,44 @@ int main(void)
 	  }
 	  drapeau = 0;
 
+	  //Demande de lecture ultrason
+	  donnees_Tx_i2c[0]=0x00;
+	  donnees_Tx_i2c[1]=0x51;
+	  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
+	  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)ADRES_SRF10<<1, donnees_Tx_i2c, 2, 1000);
+
+	  // attente de la fin de la conversion ADC, si jamais ce n'est pas encore fini
+	  // Oui j'ai du le raccourcir avant de mettre les attrib SPI en place
+	  HAL_ADC_PollForConversion(&hadc1, 1);
+
+	  // TRANSMISSIONS DE TRAMES SPI
+	  SPI_TxBuffer[0] = (uint8_t)0xFF;
+	  SPI_TxBuffer[1] = (uint8_t)(uint16_t)((distance_US >> 8) & 0xFF);
+	  SPI_TxBuffer[2] = (uint8_t)(uint16_t)(distance_US & 0xFF);
+	  SPI_TxBuffer[3] = (uint8_t)0xFF;
+	  SPI_TxBuffer[4] = (uint8_t)(uint16_t)((vitesse_mesuree_mm_s >> 8) & 0xFF);
+	  SPI_TxBuffer[5] = (uint8_t)(uint16_t)(vitesse_mesuree_mm_s & 0xFF);
+	  SPI_TxBuffer[6] = (uint8_t)0xFF;
+	  SPI_TxBuffer[7] = (uint8_t)(uint16_t)((roll >> 8) & 0xFF);
+	  SPI_TxBuffer[8] = (uint8_t)(uint16_t)(roll & 0xFF);
+	  SPI_TxBuffer[9] = (uint8_t)0xFF;
+
+	  // TRANSMISSION
+	  if (SPIActive)
+	  {
+		  HAL_SPI_Transmit_DMA(&hspi3, SPI_TxBuffer, 6);
+	  }
+
+	  //sauvegarde des valeurs de bp1 et bp2 pour la détection des fronts
+	  bp1_old = bp1;
+	  bp2_old = bp2;
+
 	  u8g_FirstPage(&u8g);
 		do {
 			u8g_SetFont(&u8g, u8g_font_profont12);
 			sprintf(text,"vitesse %5u mm/s", (unsigned int)vitesse_mesuree_mm_s);
 			u8g_DrawStr(&u8g, 0, 12,  text);
-			sprintf(text,"roulis_RAW : %5d", roll);
+			sprintf(text,"Vbat : %5d", vbat);
 			u8g_DrawStr(&u8g, 0, 24,  text);
 			sprintf(text,"dist_US : %5d cm", distance_US);
 			u8g_DrawStr(&u8g, 0, 36,  text);
@@ -278,53 +305,25 @@ int main(void)
 				sprintf(text,"  activate SPI  ");
 				u8g_DrawStr(&u8g, 0, 60,  text);
 			}
+			//sprintf(text,"roulis_RAW : %5d", roll);
+			//u8g_DrawStr(&u8g, 0, 24,  text);
 			//sprintf(text,"telem_g_RAW : %5u", (unsigned int)lectures_ADC[0]);
 			//u8g_DrawStr(&u8g, 0, 48,  text);
 			//sprintf(text,"telem_d_RAW : %5u", (unsigned int)lectures_ADC[1]);
 			//u8g_DrawStr(&u8g, 0, 60,  text);
 		} while (u8g_NextPage(&u8g));
 
-	  //Demande de lecture ultrason
-	  donnees_Tx_i2c[0]=0x00;
-	  donnees_Tx_i2c[1]=0x51;
-	  while (HAL_I2C_GetState(&hi2c1) != HAL_I2C_STATE_READY);
-	  HAL_I2C_Master_Transmit(&hi2c1, (uint16_t)ADRES_SRF10<<1, donnees_Tx_i2c, 2, 1000);
-
-	  // 1,2,3 : distance
-	  SPI_TxBuffer[0] = (char)distance_US;
-	  SPI_TxBuffer[1] = (char)distance_US;
-	  SPI_TxBuffer[2] = (char)distance_US;
-	  // 255 placeholder
-	  SPI_TxBuffer[3] = 0xFF;
-	  // Fourche ENVOI EN DECIMETRE
-	  // Valeurs : 4 entier
-	  // 		   5 decimal
-	  SPI_TxBuffer[4] = (char)(vitesse_mesuree_mm_s/100);
-	  SPI_TxBuffer[5] = (char)(vitesse_mesuree_mm_s - (vitesse_mesuree_mm_s/100)*100);
-
-	  // DELAI
+	  // HORLOGE
 	  HAL_Delay(100);
-	  if (SPIFlag)
-	  {
-		  // Illustrateur
-		  HAL_GPIO_TogglePin(LED4_GPIO_Port, LED4_Pin);
-		  SPIFlag = 0;
-	  }
-	  else
-	  {
-		  //HAL_SPI_Receive_IT(&hspi3, SPI_TxBuffer, 6);
-	  }
 
+	  // SOLUTION FIX SPI SORBONNE
+	  // J'AI PEUR :))))))))))))))
+	  __HAL_RCC_SPI3_FORCE_RESET();
+	  __HAL_RCC_SPI3_RELEASE_RESET();
 
-	  //attente de la fin de la conversion ADC, si jamais ce n'est pas encore fini
-	  HAL_ADC_PollForConversion(&hadc1, 1);
-
-	  //sauvegarde des valeurs de bp1 et bp2 pour la détection des fronts
-	  bp1_old = bp1;
-	  bp2_old = bp2;
     /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+	/* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -438,30 +437,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-	if (HAL_SPI_Receive_IT(&hspi3, SPI_RxBuffer, 6) != HAL_OK)
-	{
-		errorFlag = 99;
-    }
-	SPIFlag = 1;
+
 }
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-	if (HAL_SPI_Transmit_IT(&hspi3, SPI_TxBuffer, 6) != HAL_OK)
-	{
-		errorFlag = 99;
-    }
-	SPIFlag = 1;
+
 }
 
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-	if (HAL_SPI_TransmitReceive_IT(&hspi3, SPI_TxBuffer, SPI_RxBuffer, 6) != HAL_OK)
-	{
-		errorFlag = 99;
-    }
-	SPIFlag = 1;
+
 }
 
 /* USER CODE END 4 */
