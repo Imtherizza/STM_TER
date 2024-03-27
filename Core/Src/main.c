@@ -227,7 +227,7 @@ int main(void)
 		  HAL_Delay(100);
 		  buzzer_stop();
 
-		  HAL_SPI_TransmitReceive_IT(&hspi3, (uint8_t*)SPI_TxBuffer, (uint8_t*)SPI_RxBuffer, 10);
+		  HAL_SPI_Transmit_IT(&hspi3, (uint8_t*)SPI_TxBuffer, 10);
 		  SPIActive = 1;
 	  }
 
@@ -439,7 +439,7 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef * hspi)
 
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-
+	HAL_SPI_Transmit_IT(&hspi3, (uint8_t*)SPI_TxBuffer, 10);
 }
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
