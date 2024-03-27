@@ -227,6 +227,7 @@ int main(void)
 		  HAL_Delay(100);
 		  buzzer_stop();
 
+		  HAL_SPI_TransmitReceive_IT(&hspi3, (uint8_t*)SPI_TxBuffer, (uint8_t*)SPI_RxBuffer, 10);
 		  SPIActive = 1;
 	  }
 
@@ -272,8 +273,6 @@ int main(void)
 	  SPI_TxBuffer[8] = (uint8_t)(uint16_t)(roll & 0xFF);
 	  SPI_TxBuffer[9] = (uint8_t)0;
 
-	  // TRANSMISSION
-	  HAL_SPI_TransmitReceive_IT(&hspi3, (uint8_t*)SPI_TxBuffer, (uint8_t*)SPI_RxBuffer, 10, 100);
 
 	  //sauvegarde des valeurs de bp1 et bp2 pour la détection des fronts
 	  bp1_old = bp1;
@@ -445,7 +444,7 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi)
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
-
+	HAL_SPI_TransmitReceive_IT(&hspi3, (uint8_t*)SPI_TxBuffer, (uint8_t*)SPI_RxBuffer, 10);
 }
 
 /* USER CODE END 4 */
