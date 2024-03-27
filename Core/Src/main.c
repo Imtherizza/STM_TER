@@ -62,8 +62,8 @@
 float vitesse_mesuree_m_s = 0;
 uint32_t vitesse_mesuree_mm_s = 0;
 uint32_t lectures_ADC[3];
-uint8_t SPI_TxBuffer[10] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; 	// buffer pour la transmission SPI
-uint8_t SPI_RxBuffer[10] = {}; 				// Buffer pour la réception SPI
+uint8_t SPI_TxBuffer[10] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}; 	// buffer pour la transmission SPI
+uint8_t SPI_RxBuffer[10] = {}; 				                                        // Buffer pour la réception SPI
 int16_t roll, distance_US, vbat;
 uint8_t temp;
 uint16_t telemetre_gauche, telemetre_droit;
@@ -261,22 +261,19 @@ int main(void)
 	  HAL_ADC_PollForConversion(&hadc1, 1);
 
 	  // TRANSMISSIONS DE TRAMES SPI
-	  SPI_TxBuffer[0] = (uint8_t)0xFF;
+	  SPI_TxBuffer[0] = (uint8_t)0;
 	  SPI_TxBuffer[1] = (uint8_t)(uint16_t)((distance_US >> 8) & 0xFF);
 	  SPI_TxBuffer[2] = (uint8_t)(uint16_t)(distance_US & 0xFF);
-	  SPI_TxBuffer[3] = (uint8_t)0xFF;
+	  SPI_TxBuffer[3] = (uint8_t)0;
 	  SPI_TxBuffer[4] = (uint8_t)(uint16_t)((vitesse_mesuree_mm_s >> 8) & 0xFF);
 	  SPI_TxBuffer[5] = (uint8_t)(uint16_t)(vitesse_mesuree_mm_s & 0xFF);
-	  SPI_TxBuffer[6] = (uint8_t)0xFF;
+	  SPI_TxBuffer[6] = (uint8_t)0;
 	  SPI_TxBuffer[7] = (uint8_t)(uint16_t)((roll >> 8) & 0xFF);
 	  SPI_TxBuffer[8] = (uint8_t)(uint16_t)(roll & 0xFF);
-	  SPI_TxBuffer[9] = (uint8_t)0xFF;
+	  SPI_TxBuffer[9] = (uint8_t)0;
 
 	  // TRANSMISSION
-	  if (SPIActive)
-	  {
-		  HAL_SPI_Transmit_DMA(&hspi3, SPI_TxBuffer, 6);
-	  }
+	  HAL_SPI_TransmitReceive(&hspi3, (uint8_t*)SPI_TxBuffer, (uint8_t*)SPI_RxBuffer, 10, 100);
 
 	  //sauvegarde des valeurs de bp1 et bp2 pour la détection des fronts
 	  bp1_old = bp1;
@@ -324,7 +321,7 @@ int main(void)
 
     /* USER CODE END WHILE */
 
-	/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
@@ -445,7 +442,6 @@ void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef * hspi)
 {
 
 }
-
 
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef * hspi)
 {
