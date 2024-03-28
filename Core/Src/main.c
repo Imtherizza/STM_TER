@@ -314,8 +314,8 @@ int main(void)
 
 	  CRC->DR = (uint32_t)(((uint16_t) lectures_ADC[0] << 16) | ((uint16_t) lectures_ADC[1])); //Put 4 next bytes in the CRC register
 
-	  SPI_TxBuffer[8] = (uint8_t)(vitesse_mesuree_mm_s/100); // Octet de poids fort de vitesse_mesuree_mm_s
-	  SPI_TxBuffer[9] = (uint8_t)(vitesse_mesuree_mm_s - (vitesse_mesuree_mm_s/100)*100);    // Octet de poids faible de vitesse_mesuree_mm_s
+	  SPI_TxBuffer[8] = (uint8_t)(vitesse_mesuree_mm_s/100);
+	  SPI_TxBuffer[9] = (uint8_t)(vitesse_mesuree_mm_s - (vitesse_mesuree_mm_s/100)*100);
 	  //SPI_TxBuffer[8] = (uint8_t)((vitesse_mesuree_mm_s >> 8) & 0xFF); // Octet de poids fort de vitesse_mesuree_mm_s
 	  //SPI_TxBuffer[9] = (uint8_t)(vitesse_mesuree_mm_s & 0xFF);    // Octet de poids faible de vitesse_mesuree_mm_s
 	  SPI_TxBuffer[10] = (uint8_t)((distance_US_cm >> 8) & 0xFF);
