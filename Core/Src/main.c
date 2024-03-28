@@ -24,6 +24,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -33,6 +34,7 @@
 #include "CoVAPSy_moteurs.h"
 #include "u8g.h"
 #include "stdio.h"
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -150,7 +152,7 @@ uint8_t u8g_com_arm_stm32_sh_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, vo
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	uint32_t bp1,bp2,bp1_old=0,bp2_old=0;
+	uint32_t bp2,bp2_old=0;
 	uint8_t donnees_Tx_i2c[8];
 	uint8_t donnees_Rx_i2c[8];
 	char text[50];
@@ -182,6 +184,7 @@ int main(void)
   MX_TIM2_Init();
   MX_I2C1_Init();
   MX_TIM6_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
@@ -208,16 +211,7 @@ int main(void)
 	  HAL_ADC_Start_DMA(&hadc1, lectures_ADC, 3);
 
 	  //lecture des boutons
-	  bp1 = HAL_GPIO_ReadPin(BP1_GPIO_Port, BP1_Pin);
 	  bp2 = HAL_GPIO_ReadPin(BP2_GPIO_Port, BP2_Pin);
-
-	  //détection front descendant sur bp1
-	  if((bp1 == BP_ENFONCE) && (bp1_old == BP_RELACHE))
-	  {
-		  buzzer_start_frequency_Hz(1760);
-		  HAL_Delay(500);
-		  buzzer_stop();
-	  }
 
 	  //détection front descendant sur bp2
 	  if((bp2 == BP_ENFONCE) && (bp2_old == BP_RELACHE))
@@ -291,6 +285,9 @@ int main(void)
 
 	  // DELAI
 	  HAL_Delay(100);
+	  // USB Transmitter
+	  CDC_Transmit_FS((uint8_t*)SPI_TxBuffer,6);
+
 	  if (SPIFlag)
 	  {
 		  // Illustrateur
@@ -307,7 +304,6 @@ int main(void)
 	  HAL_ADC_PollForConversion(&hadc1, 1);
 
 	  //sauvegarde des valeurs de bp1 et bp2 pour la détection des fronts
-	  bp1_old = bp1;
 	  bp2_old = bp2;
     /* USER CODE END WHILE */
 
@@ -340,8 +336,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_LSE
+                              |RCC_OSCILLATORTYPE_MSI;
   RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = 0;
   RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;

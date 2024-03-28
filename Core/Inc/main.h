@@ -69,10 +69,6 @@ void Error_Handler(void);
 #define BUZZER_GPIO_Port GPIOB
 #define PWM_PROPULSION_Pin GPIO_PIN_8
 #define PWM_PROPULSION_GPIO_Port GPIOA
-#define PWM_DIRECTION_Pin GPIO_PIN_11
-#define PWM_DIRECTION_GPIO_Port GPIOA
-#define BP1_Pin GPIO_PIN_12
-#define BP1_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
