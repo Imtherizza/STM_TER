@@ -35,21 +35,15 @@ void buzzer_stop(void){
 }
 
 void buzzer_gamme(void){
-	buzzer_start_frequency_Hz(NOTE_DO3);
+	buzzer_start_frequency_Hz(659);
+	HAL_Delay(320);
+	buzzer_start_frequency_Hz(1046);
 	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_RE3);
+	buzzer_start_frequency_Hz(988);
 	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_MI3);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_FA3);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_SOL3);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_LA3);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_SI3);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(NOTE_DO4);
-	HAL_Delay(200);
-	buzzer_stop();
+	buzzer_start_frequency_Hz(587);
+	HAL_Delay(100);
+	buzzer_start_frequency_Hz(659);
+	HAL_Delay(70);
+	HAL_TIM_Base_Stop_IT(&htim6);
 }

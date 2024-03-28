@@ -11,6 +11,7 @@
 #define NOTE_DO4 523.25
 
 
+
 #define FREQ_TIMER_6 1000000 //1MHz
 
 void buzzer_start_frequency_Hz(float frequency_Hz);

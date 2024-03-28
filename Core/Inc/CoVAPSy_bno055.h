@@ -25,6 +25,8 @@
 #define EULER_ROLL_16bits 0x1C
 #define EULER_PITCH_16bits 0x1E
 
+#define PWR_MODE 0x3E
+
 #define TEMPERATURE_8bits 0x34
 #include "stdint.h"
 
