@@ -36,14 +36,14 @@ void buzzer_stop(void){
 
 void buzzer_gamme(void){
 
-	buzzer_start_frequency_Hz(988);
-	HAL_Delay(200);
-	buzzer_start_frequency_Hz(659);
-	HAL_Delay(110);
-	buzzer_start_frequency_Hz(1046);
-	HAL_Delay(370);
-	buzzer_start_frequency_Hz(659);
-	HAL_Delay(220);
+	//buzzer_start_frequency_Hz(988);
+	//HAL_Delay(200);
+	//buzzer_start_frequency_Hz(659);
+	//HAL_Delay(110);
+	//buzzer_start_frequency_Hz(1046);
+	//HAL_Delay(370);
+	//buzzer_start_frequency_Hz(659);
+	//HAL_Delay(220);
 	buzzer_start_frequency_Hz(1187);
 	HAL_Delay(160);
 	HAL_TIM_Base_Stop_IT(&htim6);
